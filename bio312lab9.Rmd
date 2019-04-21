@@ -1,0 +1,89 @@
+---
+title: "Bio312 Lab Week9"
+author: "Lauren Pincus"
+date: "March 27, 2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+#WEEK 9
+
+#Topics covered in Multivariate statistical methods: A primer Chapter 9
+#uses of cluster analysis
+#types of cluster analysis
+#hierarchical methods
+#problems with cluster analysis
+#measures of distance
+#PCA with cluster analysis
+
+##############################
+#1
+##############################
+#The plant data in table 9.7 provides the amount of cover of a species of plant from 0 (low) to 5 (high) in each of 17 plots.
+
+#A. Load the plant data from the Chapter 12 directory for the data and R codes from the textbook. Think about whether to scale the cover measurements or not
+```{r}
+setwd("/Users/Lauren/Desktop/Biostats312/Chapter 12")
+plants <- read.csv("./Plants Steneryd Reserve.csv", row.names = 1)
+
+# I do not think we should standardize since cover is already scaled 0 - 5.
+```
+
+
+#B. Create a Euclidean distance matrix using the dist function to describe the distances between species.
+```{r}
+dist.plants <- dist(plants, method="euclidean")
+
+```
+#C. Using the hclust function, perform a cluster analysis to study the relationships between the various plots. 
+  
+
+```{r}
+# Invoking hclust command (cluster analysis by single linkage method)   
+clusplant <- hclust(dist.plants, method = "single")
+```
+#D. Plot the dendrogram and interpret your findings.
+
+```{r}
+plot(as.dendrogram(clusplant), horiz = TRUE, xlab="Distance between Species", main="Dendrogram based on \n cover of 25 plant species in 17 plots")
+
+#Festuca ovina is the LEAST related to the other species in terms of cover. Allium sp and Geum urbanum are the MOST related in terms of cover.
+
+```
+################################
+#2
+################################
+#A. Perform a cluster analysis to study the relationships between the 17 plots. HINT: transpose the data frame using the function t.
+
+```{r}
+plots <- t(plants)
+row.names(plots) <- paste("Plot", 1:17)
+
+#change row names
+
+dist.plots <- dist(plots, method="euclidean")
+clusplots <- hclust(dist.plots, method = "single")
+```
+
+#B. Plot the dendrogram and interpret your findings
+
+```{r}
+plot(as.dendrogram(clusplots), horiz = TRUE, xlab="Distance between Plots", main="Dendrogram based on \n cover of 25 plant species in 17 plots")
+
+#Plots 16 and 17 are LEAST related to the others in terms of cover of the 25 plant species.
+#Plots 1 and 2 are MOST related to each other in terms of plant cover.
+#There seems to be some spatial pattern since the plots that are similar in number are also similar in plant species composition (depending on the way that the plots were numbered of course)
+```
+
+###############################
+#3
+###############################
+#Use Galaxy to create a dendrogram based on a hierarchical cluster analysis analyzing the relationships between the various plant species.
+
+
+
+

@@ -1,0 +1,183 @@
+---
+title: "312-midterm"
+author: "Lauren Pincus"
+date: "March 3, 2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#BioStat 312 Take-Home Midterm.   Spring 2019
+Use the matices zipped with the test
+Submit your R input output (scren shots) and pics of the charts
+Open everything, e.g. book, internet, etc -- except working with classmates and other humans
+Questions on the Exam?  email/text myself or Niki
+Due before 1:30pm Wed March 6 Submit to BLACKBOARD
+
+#Q 1.  Plot the Bumpus_sparrowsExam.csv (with exam in zip file) as a scatterplot using Total_Length and L_beak_head as the two variables.   Apply meaningful axis titles, a legend, and distinguish the 2 cohorts in the plot   (10 points)				
+```{r}
+setwd("/Users/Lauren/Desktop/biostats312midterm")
+sparrows <- read.csv("Bumpus_sparrowsEXAM.csv")
+names(sparrows)
+
+plot(sparrows$Total_length, 
+     sparrows$L_beak_head, 
+     pch=c(1,16)[as.numeric(sparrows$Survivorship)], 
+     xlab="Total length (mm)", 
+     ylab="Length of beak and head (mm)", 
+     main = "Length of Beak and Head vs. Total Length of Sparrows")
+
+legend("bottomright", legend=c("Survivor","Non survivor"), pch=c(16,1), horiz=TRUE, cex = .75)
+````
+
+# --  Q2 to Q9 use MatrixEXAM.csv	--
+
+# Q2   Mean  of matrix A column 3   (5 points)	
+
+```{r}
+A <- as.matrix(read.csv("MatrixExam.csv", header = FALSE))
+A
+```
+```{r}
+mean(A[,3])
+```
+
+# Q3   Variance of matrix A column 1 	(5 points)			
+```{r}
+var(A[,1])
+```
+				
+# Q4   Is  A times A transpose = A transponse times A   
+#watch out for the matrix multiply command %*%.  (5 points)				
+```{r}
+#(A)%*%t(A) ==  t(A)%*%as.matrix(A)
+paste("they are not the same")
+```
+	
+	FYI If running into issues with the matrix manipulation portion of the take home exam. The matrix given is non-square, so it cannot compute the determinant, eigenvalues, etc. directly.
+
+You need to convert the matrix to a feature n x n normalized covariate matrix first then do the eigen stuff 
+
+				
+# Q5   Covar of A  (5 points)				
+```{r}
+cov_A <- cov(A)
+cov_A
+```
+					
+# Q6	Determinant of A  	(5 points)		
+```{r}
+det(cov_A)
+```
+					
+# Q7  normalized Eigenvalues for A	(5 points)
+```{r}
+eigen(cov_A)$values
+```
+					
+# Q8	Eigenvectors for A (5 points)			
+```{r}
+eigen(cov_A)$vectors
+```
+					
+# Q9	Inverse of Matrix A (5 points)			
+```{r}
+solve(cov_A)
+```
+					
+
+# Q10  Find the closest 2 colonies, using Euclidean distances, in Butterfly_coloniesEXAM.csv  based on the 4 feature columns   (10 points)			
+```{r}
+butterflies <- read.csv("Butterfly_coloniesEXAM.csv", header = TRUE)
+butterflies
+```
+```{r}
+dist(butterflies[,2:4],
+     method = "euclidean")
+```
+					
+# Q11 t.test( on two cohorts- S, NS  in Bumpus_sparrowsExam.csv with features  'L_keel_sternum' and 'L_humerous'  (10 points)				
+```{r}
+sparrows <- read.csv("Bumpus_sparrowsEXAM.csv")
+sparrows
+```
+
+```{r}
+unique(sparrows$Survivorship)
+```
+```{r}
+t.test(sparrows$L_keel_sternum ~ as.numeric(sparrows$Survivorship))
+```
+```{r}
+t.test(sparrows$L_humerous ~ as.numeric(sparrows$Survivorship))
+```
+
+
+# Q12  Is there significance shown in the result of the t.test?	(5 points)			
+
+Both of the p-values produced from the t test were above the 0.05p value. Because of this we accept the null hypothesis and say that the two means are likely from the same population. This means that there is no significant difference between survivors and non-survivors with the features of humerous length or keel and sternum length.
+
+					
+# Q13  perform hotelling.test on same two cohorts -n, ns   in  Bumpus_sparrowsExam.csv using  features  'L_keel_sternum' and 'L_humerous'  (10 points)				
+```{r}
+nonsurvivors <- sparrows[1:28, 5:6]
+nonsurvivors
+survivors <- sparrows [29:49, 5:6]
+survivors
+
+```
+
+> aa <-Hotelling::hotelling.test(canine_modern_1, canine_prehistoric_1, mu = NULL, test = "f",na.action = na.fail)
+
+```{r}
+library(corpcor)
+library(Hotelling)   
+
+aa <- Hotelling::hotelling.test(nonsurvivors, survivors, mu = NULL, test = "f", na.action=na.fail)
+aa
+                         
+```
+
+```{r}
+hotelling.test(L_humerous ~ as.numeric(Survivorship), sparrows)
+```
+					
+# Q14   is there significance shown in the result of the t.test?	(5 points)			
+```{r}
+#In the hotelling's test, the p-value is 0.6139 which is above the accepted p-value significance of 0.05. Because of this we accept the null hypothesis that the mean of the two populations are equivalent. This means that the keel and sternum length and the humerus length of the Bumpus sparrows does not affect whether or not the birds survived.
+```
+					
+# Q15   do PCA on gobletExam.csv  (use version in this zip file)	(10 points)	
+
+Scaling is very important to reduce the dimensions of the plot. After scaling eigenvalues decreased dramatically.
+
+
+```{r}
+goblet <- read.csv("gobletsEXAM.csv")
+goblet
+gobpca <- prcomp(goblet[,-1], scale=F)
+```
+```{r}
+summary(gobpca)
+```
+```{r}
+(eigen_gob <- gobpca$sdev^2)
+names(eigen_gob) <- paste("PC", 1:6, sep="")
+eigen_gob
+gobpca <- prcomp(goblet[,-1], scale=TRUE)
+gobpca
+summary(gobpca)
+(eigen_gob <- gobpca$sdev^2)
+names(eigen_gob) <- paste("PC", 1:6, sep="")
+eigen_gob
+
+
+```
+
+
+```{r}
+plot(gobpca$x[,1], gobpca$x[,2], pch = 16, xlab="PC1", ylab="PC2", main="Goblet PCA scaled")
+text(gobpca$x[,1],gobpca$x[,2], labels = goblet$Goblet, cex = .5, pos = 1, offset = .2)
+```
