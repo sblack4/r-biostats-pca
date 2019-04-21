@@ -18,6 +18,7 @@ library("factoextra")
 ## Data 
 ```{r}
 ALD <- read.csv("data/Ordered Team4-ALD_4cohort_dataset.csv")
+cohorts <- c("control_avg", "control_AC_avg", "mild_AH_avg", "severe_AH_avg")
 ```
 
 
@@ -50,52 +51,60 @@ summary(all_pca)
 
 ### Viz PCA 
 ```{r}
-fviz_pca_biplot(all_pca, label = "none",
+fviz_pca(all_pca, label = "none",
                 title = "Bacterial Species in Four Cohorts ALD",
                 habillage =  c("control_avg", "control_AC_avg", "mild_AH_avg", "severe_AH_avg"),
-                addElipses = TRUE, elipse.level=1,
+                addElipses = TRUE, ellipse.level=0.95,
+                col.circle = "blue",
+                invisible = "var",
                 ggtheme=theme_minimal())
 
+```
+
+```{r}
 fviz_pca_var(all_pca,                 
              title = "Bacterial Species in Four Cohorts ALD",
              col.ind = colnames(all), 
              label="none", addElipse=TRUE)
+```
+
+```{r}
 fviz_pca_ind(all_pca,                 
              title = "Bacterial Species in Four Cohorts ALD",
              col.ind = c("control_avg", "control_AC_avg", "mild_AH_avg", "severe_AH_avg"), 
              label="none", addElipse=TRUE)
 ```
 
+## Transoform Data and perform PCA
+```{r}
+t_all <- t(all)
+t_all_pca <- prcomp(t_all, scale=TRUE)
+summary(t_all_pca)
+```
 
+### Visualize transformed PCA 
+```{r}
+fviz_pca(t_all_pca, 
+                title = "150 Bacterial Species in Four Cohorts",
+                addEllipses = TRUE,
+                ellipse.level=0.95,
+                ellipse.type="confidence",
+                geom.ind = "point",
+                pointshape = 21,
+                pointsize = 2,
+                palette = "jco",
+                label = "var",
+                # Variables
+                alpha.var ="contrib", col.var = "contrib",
+                gradient.cols = "RdBu"
+                )
+```
 
 ```{r}
-summary(all_pca)
-
-
-t_all <- t(all)
-cov_all <- cov(t_all)
-cov_all
-det(cov_all)
-# determinant is 0 which means the cohorts are linearly dependent on each other. This means that they can be defined as linear combinations of the others
-ALDpca <- prcomp(t_all, scale=TRUE)
-summary(ALDpca)
-(eigen_ALD <- ALDpca$sdev^2)
-fviz_pca_biplot(ALDpca, 
-                title = "Bacterial Species foo",
-                pallette = "jco")
-
-fviz_pca_biplot(ALDpca, label = "var",
+fviz_pca_biplot(t_all_pca, label = "var",
                 title = "Bacterial Species in Four Cohorts ALD",
                 addElipses = TRUE, elipse.level=1,
                 ggtheme=theme_minimal())
-
-fviz_pca_var(ALDpca,                 
-             title = "Bacterial Species in Four Cohorts ALD",
-             col.ind = colnames(all), 
-             label="none", addElipse=TRUE)
-fviz_pca_ind(ALDpca,                 
-             title = "Bacterial Species in Four Cohorts ALD",
-             label="none", addElipse=TRUE)
-
 ```
+
 
